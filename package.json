@@ -1,0 +1,25 @@
+{
+  "name": "magus",
+  "version": "1.0.0",
+  "description": "it's about wishlist",
+  "main": "index.js",
+  "repository": "https://gitlab.com/magus_team/development.git",
+  "author": "Magus Team <developers@magus.ir>",
+  "license": "UNLICENSED",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "bootstrap": "lerna bootstrap --use-workspaces"
+  },
+  "devDependencies": {
+    "husky": "^4.2.3",
+    "lerna": "^3.20.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lerna run --concurrency 1 --stream precommit"
+    }
+  }
+}
