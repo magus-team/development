@@ -1,0 +1,39 @@
+{
+    "name": "@magus/types",
+    "version": "0.0.1",
+    "description": "Common Types and Entities",
+    "author": "Magus Team <developers@magus.ir>",
+    "homepage": "https://gitlab.com/magus_team/development#readme",
+    "license": "UNLICENSED",
+    "main": "dist/index",
+    "types": "dist/index",
+    "files": [
+        "dist"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://gitlab.com/magus_team/development.git"
+    },
+    "scripts": {
+        "build": "npm run clean && npm run compile",
+        "clean": "rm -rf ./dist",
+        "compile": "tsc -p tsconfig.build.json",
+        "prepublishOnly": "npm run build",
+        "lint": "eslint --fix --ext .ts,.tsx,.js,.jsx .",
+        "precommit": "lint-staged",
+        "test": "echo \"Error: run tests from root\" && exit 1"
+    },
+    "bugs": {
+        "url": "https://gitlab.com/magus_team/development/issues"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^2.25.0",
+        "@typescript-eslint/parser": "^2.25.0",
+        "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.10.1",
+        "eslint-plugin-import": "^2.20.1",
+        "lint-staged": "^10.0.9",
+        "typescript": "^3.8.3"
+    },
+    "dependencies": {}
+}

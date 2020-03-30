@@ -11,7 +11,10 @@
     "packages/*"
   ],
   "scripts": {
-    "bootstrap": "lerna bootstrap --use-workspaces"
+    "bootstrap": "lerna bootstrap --use-workspaces",
+    "postinstall": "yarn run bootstrap",
+    "build": "lerna run build",
+    "clean": "lerna clean"
   },
   "devDependencies": {
     "husky": "^4.2.3",
@@ -21,5 +24,8 @@
     "hooks": {
       "pre-commit": "lerna run --concurrency 1 --stream precommit"
     }
+  },
+  "dependencies": {
+    "@nestjs/graphql": "^7.1.4"
   }
 }
