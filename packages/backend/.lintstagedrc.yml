@@ -1,4 +1,4 @@
 '*.{ts,tsx,js,jsx}':
-  - eslint --fix
-  - prettier --write
-  - git add
+    - yarn run lint
+    - yarn run format
+    - git add
