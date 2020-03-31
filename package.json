@@ -26,6 +26,8 @@
     }
   },
   "dependencies": {
-    "@nestjs/graphql": "^7.1.4"
+    "@nestjs/graphql": "^7.1.4",
+    "class-validator": "^0.11.1",
+    "typeorm": "^0.2.24"
   }
 }

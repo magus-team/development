@@ -21,6 +21,7 @@
         "prepublishOnly": "npm run build",
         "lint": "eslint --fix --ext .ts,.tsx,.js,.jsx .",
         "precommit": "lint-staged",
+        "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "test": "echo \"Error: run tests from root\" && exit 1"
     },
     "bugs": {
