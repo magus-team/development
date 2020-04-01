@@ -20,7 +20,7 @@ import {
 } from '@magus/types'
 
 import { ClientGuard } from 'common/guard/client.guard'
-import { CurrentClient } from 'common/decorators/client'
+import { CurrentClient } from 'common/decorator/currentClient.decorator'
 import { TrustedUserAppService } from './trustedUserApp.service'
 import { UserService } from 'modules/user/user.service'
 

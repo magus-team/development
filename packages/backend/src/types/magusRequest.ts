@@ -1,13 +1,9 @@
 import { FastifyRequest } from 'fastify'
 
 import { Client } from '@magus/types'
+import { UserInfo } from './userInfo'
 
 export interface MagusRequest extends FastifyRequest {
     client?: Client
-    clientId?: string
-    clientKey?: string
-    systemKey?: string
-    userAppId?: string
-    userId?: string
-    userRoles?: [string]
+    userInfo?: UserInfo
 }

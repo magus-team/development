@@ -1,9 +1,7 @@
-import { RoleType } from '../entities/userRole'
-
 export type JWTPayload = {
     userId: string
     name: string
-    roles: RoleType[]
+    roles: string[]
     appId: string
     exp?: number
 }
