@@ -18,7 +18,24 @@ scalar DateTime
 
 union InitialClientResult = MutationStatus | Client
 
+type IsSuspended {
+  message: String!
+  reason: String!
+}
+
+type IsUnverified {
+  message: String!
+}
+
+input LoginInput {
+  password: String!
+  email: String!
+}
+
+union LoginResult = MutationStatus | IsSuspended | IsUnverified | UserToken
+
 type Mutation {
+  login(data: LoginInput!): [LoginResult!]!
   initialPWAClient: [InitialClientResult!]!
   initAdminUser: MutationStatus!
 }
@@ -35,4 +52,9 @@ type Query {
 type UserRole {
   userId: String!
   role: String!
+}
+
+type UserToken {
+  jwt: String!
+  refreshToken: String!
 }

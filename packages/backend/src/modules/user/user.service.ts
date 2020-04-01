@@ -14,4 +14,8 @@ export class UserService {
     async create(user: User): Promise<User> {
         return await this.userRepository.save(user)
     }
+
+    async findByEmailWithRoles(email: string): Promise<User> {
+        return await this.userRepository.findOne({ where: { email }, relations: ['roles'] })
+    }
 }

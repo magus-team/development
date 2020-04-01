@@ -3,6 +3,7 @@ import { GraphQLModule } from '@nestjs/graphql'
 import { Module } from '@nestjs/common'
 import * as path from 'path'
 
+import { AuthModule } from './auth/auth.module'
 import { ClientModule } from 'modules/client/client.module'
 import { UserModule } from 'modules/user/user.module'
 @Module({
@@ -10,6 +11,7 @@ import { UserModule } from 'modules/user/user.module'
         ConfigModule.load(path.resolve(__dirname, '../config', '**/!(*.d).{ts,js}')),
         UserModule,
         ClientModule,
+        AuthModule,
         GraphQLModule.forRootAsync({
             useFactory: (config: ConfigService) =>
                 Object.assign(
