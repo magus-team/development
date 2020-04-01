@@ -2,11 +2,37 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Query {
-  hello: User!
+type Client {
+  id: ID!
+  key: String!
+  isWebApp: Boolean!
+  deviceType: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
-type User {
-  id: ID!
-  name: String!
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+union InitialClientResult = MutationStatus | Client
+
+type Mutation {
+  initialPWAClient: [InitialClientResult!]!
+  initAdminUser: MutationStatus!
+}
+
+type MutationStatus {
+  isSucceeded: Boolean!
+  message: String!
+}
+
+type Query {
+  hello: String!
+}
+
+type UserRole {
+  userId: String!
+  role: String!
 }

@@ -1,5 +1,14 @@
 {
     "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "paths": {
+            "common/*": ["common/*"],
+            "config/*": ["config/*"],
+            "modules/*": ["modules/*"],
+            "types/*": ["types/*"]
+        }
+    },
 
     "include": ["src/**/*"]
 }
