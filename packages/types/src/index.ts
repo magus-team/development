@@ -16,11 +16,13 @@ export * from './responses/isSuspended'
 export * from './responses/isUnverified'
 export * from './responses/userToken'
 export * from './responses/loginResult'
+export * from './responses/refreshTokenResult'
 
 /**
  * Inputs
  */
 export * from './inputs/loginInput'
+export * from './inputs/refreshTokenInput'
 
 /**
  * Utils

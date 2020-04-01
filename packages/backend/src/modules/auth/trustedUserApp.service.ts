@@ -18,4 +18,8 @@ export class TrustedUserAppService {
     async findByIdWithUserRoles(id: string): Promise<TrustedUserApp> {
         return await this.trustedUserAppRepository.findOne({ where: { id }, relations: ['user', 'user.roles'] })
     }
+
+    async save(app: TrustedUserApp) {
+        return await app.save()
+    }
 }

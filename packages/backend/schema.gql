@@ -36,6 +36,7 @@ union LoginResult = MutationStatus | IsSuspended | IsUnverified | UserToken
 
 type Mutation {
   login(data: LoginInput!): [LoginResult!]!
+  refreshToken(data: RefreshTokenInput!): [RefreshTokenResult!]!
   initialPWAClient: [InitialClientResult!]!
   initAdminUser: MutationStatus!
 }
@@ -48,6 +49,13 @@ type MutationStatus {
 type Query {
   hello: String!
 }
+
+input RefreshTokenInput {
+  appId: String!
+  refreshToken: String!
+}
+
+union RefreshTokenResult = MutationStatus | UserToken
 
 type UserRole {
   userId: String!

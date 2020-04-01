@@ -15,6 +15,8 @@ import {
     TrustedUserApp,
     JWTPayload,
     UserToken,
+    RefreshTokenInput,
+    RefreshTokenResultUnion,
 } from '@magus/types'
 
 import { ClientGuard } from 'common/guard/client.guard'
@@ -78,5 +80,46 @@ export class AuthResolver {
         const jwt = await this.jwtService.sign(jwtPayload)
 
         return [new UserToken(jwt, clearRefreshToken)]
+    }
+
+    @UseGuards(ClientGuard)
+    @Mutation((returns) => [RefreshTokenResultUnion])
+    async refreshToken(
+        @CurrentClient() client: Client,
+        @Args('data') { appId, refreshToken }: RefreshTokenInput,
+    ): Promise<typeof RefreshTokenResultUnion[]> {
+        const tokenIsInvalidResult = [new MutationStatus(false, 'The token is invalid')]
+
+        const app = await this.trustedUserAppService.findByIdWithUserRoles(appId)
+        if (!app) {
+            return tokenIsInvalidResult
+        }
+
+        const isValid = await bcrypt.compare(refreshToken, app.refreshToken)
+        if (!isValid) {
+            return tokenIsInvalidResult
+        }
+
+        const now = new Date()
+        if (app.refreshTokenExpireAt < now) {
+            return [new MutationStatus(false, 'The refresh token is expired')]
+        }
+
+        const newClearRefreshToken = v4()
+        const newHashedRefreshToken = await bcrypt.hash(newClearRefreshToken, 3)
+        app.refreshToken = newHashedRefreshToken
+        app.tokenRefreshedAt = now
+        app.refreshTokenExpireAt = new Date(now.getTime() + this.refreshTokenExpire)
+        this.trustedUserAppService.save(app)
+
+        const jwtPayload: JWTPayload = {
+            userId: app.user.id,
+            name: app.user.displayName,
+            roles: app.user.roles.map((ur) => ur.role),
+            appId: app.id,
+        }
+        const jwt = await this.jwtService.sign(jwtPayload)
+
+        return [new UserToken(jwt, newClearRefreshToken)]
     }
 }
