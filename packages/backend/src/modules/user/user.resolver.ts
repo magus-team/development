@@ -1,18 +1,24 @@
 import { Configurable, ConfigParam } from 'nestjs-config'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { UseGuards, BadRequestException } from '@nestjs/common'
+import { v4 } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
 import { MutationStatus, User, UserRole, RoleType, RegisterInput } from '@magus/types'
-import { UseGuards, BadRequestException } from '@nestjs/common'
 
+import { ClientGuard } from 'common/guard/client.guard'
+import { EmailUtils } from 'common/utils/email.utils'
 import { SystemGuard } from 'common/guard/system.guard'
 import { UserRoleService } from './userRole.service'
 import { UserService } from './user.service'
-import { ClientGuard } from 'common/guard/client.guard'
 
 @Resolver()
 export class UserResolver {
-    constructor(private readonly userService: UserService, private readonly userRoleService: UserRoleService) {}
+    constructor(
+        private readonly userService: UserService,
+        private readonly userRoleService: UserRoleService,
+        private readonly emailUtils: EmailUtils,
+    ) {}
 
     @Query((returns) => String)
     async hello(): Promise<string> {
@@ -59,9 +65,14 @@ export class UserResolver {
         user.email = email
         user.password = hashedPassword
 
-        user = await this.userService.create(user)
+        const token = v4()
+        const validUntil = new Date(new Date().getTime() + 1000 * 60 * 60 * 24)
+        user.actionTokens = { verifyEmail: { token, validUntil } }
 
-        //TODO: send verify email
+        user = await this.userService.create(user)
+        await this.userRoleService.create(new UserRole(user.id))
+
+        this.emailUtils.sendVerifyAccountEmail(email, token)
 
         return new MutationStatus(true, 'you successfully registered, please check your email to verify your account.')
     }

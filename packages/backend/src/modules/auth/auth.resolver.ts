@@ -1,7 +1,7 @@
 import { InjectConfig } from 'nestjs-config'
 import { JwtService } from '@nestjs/jwt'
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql'
-import { UseGuards } from '@nestjs/common'
+import { UseGuards, BadRequestException, ForbiddenException } from '@nestjs/common'
 import { v4 } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
@@ -16,7 +16,8 @@ import {
     JWTPayload,
     UserToken,
     RefreshTokenInput,
-    RefreshTokenResultUnion,
+    VerifyEmailAddressInput,
+    User,
 } from '@magus/types'
 
 import { AuthGuard } from 'common/guard/auth.guard'
@@ -39,29 +40,7 @@ export class AuthResolver {
     }
     private readonly refreshTokenExpire: number
 
-    @UseGuards(ClientGuard)
-    @Mutation((returns) => [LoginResultUnion])
-    async login(
-        @CurrentClient() client: Client,
-        @Args('data') { email, password }: LoginInput,
-    ): Promise<typeof LoginResultUnion[]> {
-        const user = await this.userService.findByEmailWithRoles(email)
-        if (!user) {
-            return [new MutationStatus(false, 'email or password is incorrect.')]
-        }
-        const valid = await bcrypt.compare(password, user.password)
-        if (!valid) {
-            return [new MutationStatus(false, 'email or password is incorrect.')]
-        }
-
-        if (!user.isVerified) {
-            return [new IsUnverified('your email address is not verified, please verify your email.')]
-        }
-
-        if (user.isSuspended) {
-            return [new IsSuspended('your account has been suspended.', `you don't follow the privacy policy!`)]
-        }
-
+    async getNewUserToken(user: User, client: Client): Promise<UserToken> {
         const clearRefreshToken = v4()
 
         let app = new TrustedUserApp()
@@ -82,30 +61,64 @@ export class AuthResolver {
         }
         const jwt = await this.jwtService.sign(jwtPayload)
 
-        return [new UserToken(jwt, clearRefreshToken)]
+        return new UserToken(jwt, clearRefreshToken)
     }
 
     @UseGuards(ClientGuard)
-    @Mutation((returns) => [RefreshTokenResultUnion])
+    @Mutation((returns) => [LoginResultUnion])
+    async login(
+        @CurrentClient() client: Client,
+        @Args('data') { email, password }: LoginInput,
+    ): Promise<typeof LoginResultUnion[]> {
+        const user = await this.userService.findByEmail(email, ['roles'])
+        if (!user) {
+            return [new MutationStatus(false, 'email or password is incorrect.')]
+        }
+        const valid = await bcrypt.compare(password, user.password)
+        if (!valid) {
+            return [new MutationStatus(false, 'email or password is incorrect.')]
+        }
+
+        if (!user.isVerified) {
+            return [new IsUnverified('your email address is not verified, please verify your email.')]
+        }
+
+        if (user.isSuspended) {
+            return [new IsSuspended('your account has been suspended.', `you don't follow the privacy policy!`)]
+        }
+
+        return [await this.getNewUserToken(user, client)]
+    }
+
+    @UseGuards(ClientGuard)
+    @Mutation((returns) => UserToken)
     async refreshToken(
         @CurrentClient() client: Client,
         @Args('data') { appId, refreshToken }: RefreshTokenInput,
-    ): Promise<typeof RefreshTokenResultUnion[]> {
-        const tokenIsInvalidResult = [new MutationStatus(false, 'The token is invalid')]
+    ): Promise<UserToken> {
+        const tokenIsInvalidError = new BadRequestException(undefined, 'The token is invalid')
 
         const app = await this.trustedUserAppService.findByIdWithUserRoles(appId)
         if (!app) {
-            return tokenIsInvalidResult
+            throw tokenIsInvalidError
         }
 
         const isValid = await bcrypt.compare(refreshToken, app.refreshToken)
         if (!isValid) {
-            return tokenIsInvalidResult
+            throw tokenIsInvalidError
         }
 
         const now = new Date()
         if (app.refreshTokenExpireAt < now) {
-            return [new MutationStatus(false, 'The refresh token is expired')]
+            throw tokenIsInvalidError
+        }
+
+        if (!app.user.isVerified) {
+            throw new ForbiddenException(undefined, 'your email address is not verified, please verify your email.')
+        }
+
+        if (app.user.isSuspended) {
+            throw new ForbiddenException(undefined, 'the target account has been suspended.')
         }
 
         const newClearRefreshToken = v4()
@@ -123,7 +136,7 @@ export class AuthResolver {
         }
         const jwt = await this.jwtService.sign(jwtPayload)
 
-        return [new UserToken(jwt, newClearRefreshToken)]
+        return new UserToken(jwt, newClearRefreshToken)
     }
 
     @UseGuards(AuthGuard)
@@ -144,5 +157,41 @@ export class AuthResolver {
             return new MutationStatus(true, 'The application successfully has been revoked.')
         }
         return new MutationStatus(false, 'There is no application with this id!')
+    }
+
+    @UseGuards(ClientGuard)
+    @Mutation((returns) => UserToken)
+    async verifyEmailAddress(
+        @CurrentClient() client: Client,
+        @Args('data') { email, token }: VerifyEmailAddressInput,
+    ): Promise<UserToken> {
+        const tokenIsInvalidError = new BadRequestException(undefined, 'The token is invalid')
+
+        const user = await this.userService.findByEmail(email, ['roles'])
+        if (user && user.isVerified) {
+            return await this.getNewUserToken(user, client)
+        }
+        if (!user || !user.actionTokens.verifyEmail) {
+            throw tokenIsInvalidError
+        }
+        // check the token
+        const actionToken = user.actionTokens.verifyEmail
+        if (actionToken.token !== token) {
+            throw tokenIsInvalidError
+        }
+        const now = new Date()
+        if (actionToken.validUntil < now) {
+            throw tokenIsInvalidError
+        }
+        // for saving user object should remove the roles as relation
+        const tmpRoles = user.roles
+        delete user.roles
+
+        user.isVerified = true
+        user.actionTokens.verifyEmail = undefined
+        await this.userService.save(user)
+
+        user.roles = tmpRoles
+        return await this.getNewUserToken(user, client)
     }
 }

@@ -36,8 +36,9 @@ union LoginResult = MutationStatus | IsSuspended | IsUnverified | UserToken
 
 type Mutation {
   login(data: LoginInput!): [LoginResult!]!
-  refreshToken(data: RefreshTokenInput!): [RefreshTokenResult!]!
+  refreshToken(data: RefreshTokenInput!): UserToken!
   revoke(appId: String): MutationStatus!
+  verifyEmailAddress(data: VerifyEmailAddressInput!): UserToken!
   initialPWAClient: [InitialClientResult!]!
   initAdminUser: MutationStatus!
   register(data: RegisterInput!): MutationStatus!
@@ -58,8 +59,6 @@ input RefreshTokenInput {
   refreshToken: String!
 }
 
-union RefreshTokenResult = MutationStatus | UserToken
-
 input RegisterInput {
   password: String!
   email: String!
@@ -79,4 +78,9 @@ type UserRole {
 type UserToken {
   jwt: String!
   refreshToken: String!
+}
+
+input VerifyEmailAddressInput {
+  email: String!
+  token: String!
 }

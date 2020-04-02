@@ -15,11 +15,15 @@ export class UserService {
         return await this.userRepository.save(user)
     }
 
-    async findByEmailWithRoles(email: string): Promise<User> {
-        return await this.userRepository.findOne({ where: { email }, relations: ['roles'] })
+    async findByEmail(email: string, relations?: string[]): Promise<User> {
+        return await this.userRepository.findOne({ where: { email }, relations })
     }
 
     async doAlreadyHaveUserWithThisEmail(email: string): Promise<boolean> {
         return (await this.userRepository.count({ where: { email } })) === 1
+    }
+
+    async save(user: User) {
+        await this.userRepository.save(user)
     }
 }
