@@ -40,6 +40,7 @@ type Mutation {
   revoke(appId: String): MutationStatus!
   initialPWAClient: [InitialClientResult!]!
   initAdminUser: MutationStatus!
+  register(data: RegisterInput!): MutationStatus!
 }
 
 type MutationStatus {
@@ -58,6 +59,11 @@ input RefreshTokenInput {
 }
 
 union RefreshTokenResult = MutationStatus | UserToken
+
+input RegisterInput {
+  password: String!
+  email: String!
+}
 
 type TrustedUserApp {
   id: ID!

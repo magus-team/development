@@ -18,4 +18,8 @@ export class UserService {
     async findByEmailWithRoles(email: string): Promise<User> {
         return await this.userRepository.findOne({ where: { email }, relations: ['roles'] })
     }
+
+    async doAlreadyHaveUserWithThisEmail(email: string): Promise<boolean> {
+        return (await this.userRepository.count({ where: { email } })) === 1
+    }
 }

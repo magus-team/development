@@ -23,8 +23,10 @@ export * from './responses/refreshTokenResult'
  */
 export * from './inputs/loginInput'
 export * from './inputs/refreshTokenInput'
+export * from './inputs/registerInput'
 
 /**
  * Utils
  */
 export * from './utils/jwtPayload'
+export * from './utils/actionToken'

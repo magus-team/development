@@ -30,6 +30,7 @@
         "@nestjs/typeorm": "^7.0.0",
         "apollo-server-fastify": "^2.11.0",
         "bcryptjs": "^2.4.3",
+        "class-transformer": "^0.2.3",
         "fastify": "^2.13.0",
         "graphql": "^14.6.0",
         "graphql-tools": "^4.0.7",

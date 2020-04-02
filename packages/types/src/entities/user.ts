@@ -3,6 +3,7 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm'
 
 import { TrustedUserApp } from './trustedUserApp'
 import { UserRole } from './userRole'
+import { ActionToken } from '../utils/actionToken'
 
 @ObjectType('User')
 @Entity('user')
@@ -40,6 +41,12 @@ export class User {
 
     @Column('boolean', { name: 'is_verified', default: false })
     isVerified: boolean
+
+    @Column('jsonb', { default: {} })
+    actionTokens: {
+        verifyEmail?: ActionToken
+        resetPassword?: ActionToken
+    }
 
     @Field(() => [UserRole], { nullable: true })
     @OneToMany(
