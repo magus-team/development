@@ -22,4 +22,21 @@ export class TrustedUserAppService {
     async save(app: TrustedUserApp) {
         return await app.save()
     }
+
+    async findByUserIdWithClient(userId: string): Promise<TrustedUserApp[]> {
+        return await this.trustedUserAppRepository.find({
+            where: { userId },
+            relations: ['client'],
+            order: { tokenRefreshedAt: 'DESC' },
+        })
+    }
+
+    async deleteById(id: string): Promise<boolean> {
+        const result = await this.trustedUserAppRepository
+            .createQueryBuilder('trustedUserApp')
+            .where('id = :id', { id })
+            .delete()
+            .execute()
+        return result && result.affected === 1
+    }
 }

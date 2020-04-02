@@ -1,6 +1,6 @@
 import { InjectConfig } from 'nestjs-config'
 import { JwtService } from '@nestjs/jwt'
-import { Resolver, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Mutation, Args, Query } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 import { v4 } from 'uuid'
 import * as bcrypt from 'bcryptjs'
@@ -19,9 +19,12 @@ import {
     RefreshTokenResultUnion,
 } from '@magus/types'
 
+import { AuthGuard } from 'common/guard/auth.guard'
 import { ClientGuard } from 'common/guard/client.guard'
 import { CurrentClient } from 'common/decorator/currentClient.decorator'
+import { CurrentUser } from 'common/decorator/currentUser.decorator'
 import { TrustedUserAppService } from './trustedUserApp.service'
+import { UserInfo } from 'types/userInfo'
 import { UserService } from 'modules/user/user.service'
 
 @Resolver()
@@ -121,5 +124,25 @@ export class AuthResolver {
         const jwt = await this.jwtService.sign(jwtPayload)
 
         return [new UserToken(jwt, newClearRefreshToken)]
+    }
+
+    @UseGuards(AuthGuard)
+    @Query((returns) => [TrustedUserApp])
+    async apps(@CurrentUser() { userId }: UserInfo): Promise<TrustedUserApp[]> {
+        return await this.trustedUserAppService.findByUserIdWithClient(userId)
+    }
+
+    @UseGuards(AuthGuard)
+    @Mutation((returns) => MutationStatus)
+    async revoke(
+        @CurrentUser() { appId }: UserInfo,
+        @Args('appId', { nullable: true }) appIdFromArg?: string,
+    ): Promise<MutationStatus> {
+        // should revoke the current appId like logout action if the appIdFromArg is not provided
+        const canDeleteIt = await this.trustedUserAppService.deleteById(appIdFromArg || appId)
+        if (canDeleteIt) {
+            return new MutationStatus(true, 'The application successfully has been revoked.')
+        }
+        return new MutationStatus(false, 'There is no application with this id!')
     }
 }

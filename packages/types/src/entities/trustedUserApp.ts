@@ -14,6 +14,7 @@ export class TrustedUserApp extends BaseEntity {
     @Column({ unique: true, name: 'refresh_token' })
     refreshToken: string
 
+    @Field({ name: 'lastTimeAccess' })
     @Column({ type: 'timestamp', name: 'token_refreshed_at' })
     tokenRefreshedAt: Date
 
