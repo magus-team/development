@@ -10,6 +10,7 @@ export class EmailUtils {
     constructor(@InjectConfig() private readonly config) {
         this.inTestingMode = config.get('email.inTestingMode')
         this.verifyEmailLink = config.get('email.verifyEmailLink')
+        this.resetPasswordLink = config.get('email.resetPasswordLink')
         this.noReplySender = config.get('email.noReplySender')
 
         if (this.inTestingMode) {
@@ -30,6 +31,7 @@ export class EmailUtils {
     private readonly inTestingMode: boolean
     private readonly smtpConnectionUrl?: string
     private readonly verifyEmailLink: string
+    private readonly resetPasswordLink: string
     private readonly noReplySender: string
     private mailTransporter: Mail
 
@@ -57,6 +59,33 @@ export class EmailUtils {
             console.log('Verify Email sent: %s', info.messageId)
             // Preview only available when sending through an Ethereal account
             console.log('Verify Email Preview URL: %s', nodemailer.getTestMessageUrl(info))
+        }
+    }
+
+    async sendResetPasswordLink(email: string, token: string): Promise<void> {
+        const resetPasswordLink = `${this.resetPasswordLink}/${token}?email=${email}`
+
+        let emailTemplate: string = fs.readFileSync(
+            path.resolve(__dirname + '../../../../email_templates/html/reset_password.html'),
+            {
+                encoding: 'utf8',
+            },
+        )
+        emailTemplate = emailTemplate.replace(/{{resetPasswordURL}}/g, resetPasswordLink)
+
+        const mailOptions = {
+            from: this.noReplySender,
+            to: email,
+            subject: 'Magus, Reset Your Password',
+            html: emailTemplate,
+        }
+
+        const info = await this.mailTransporter.sendMail(mailOptions)
+
+        if (this.inTestingMode) {
+            console.log('Rest Password Email sent: %s', info.messageId)
+            // Preview only available when sending through an Ethereal account
+            console.log('Rest Password Email Preview URL: %s', nodemailer.getTestMessageUrl(info))
         }
     }
 }

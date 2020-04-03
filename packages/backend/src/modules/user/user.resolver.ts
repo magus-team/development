@@ -4,7 +4,7 @@ import { UseGuards, BadRequestException } from '@nestjs/common'
 import { v4 } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
-import { MutationStatus, User, UserRole, RoleType, RegisterInput } from '@magus/types'
+import { MutationStatus, User, UserRole, RoleType, RegisterInput, ResetPasswordInput } from '@magus/types'
 
 import { ClientGuard } from 'common/guard/client.guard'
 import { EmailUtils } from 'common/utils/email.utils'
@@ -75,5 +75,51 @@ export class UserResolver {
         this.emailUtils.sendVerifyAccountEmail(email, token)
 
         return new MutationStatus(true, 'you successfully registered, please check your email to verify your account.')
+    }
+
+    @UseGuards(ClientGuard)
+    @Mutation((returns) => MutationStatus)
+    async forgotPassword(@Args('email') email: string): Promise<MutationStatus> {
+        const user = await this.userService.findByEmail(email)
+        if (!user) {
+            return new MutationStatus(false, 'there is no account with this email address')
+        }
+
+        const token = v4()
+        const validUntil = new Date(new Date().getTime() + 1000 * 60 * 60 * 5) // 5 hours
+        user.actionTokens.resetPassword = { token, validUntil }
+
+        await this.userService.save(user)
+
+        this.emailUtils.sendResetPasswordLink(email, token)
+
+        return new MutationStatus(true, 'the reset password link email has been send, please check your email.')
+    }
+
+    @UseGuards(ClientGuard)
+    @Mutation((returns) => MutationStatus)
+    async resetPassword(@Args('data') { email, token, password }: ResetPasswordInput): Promise<MutationStatus> {
+        const tokenIsInvalidError = new BadRequestException(undefined, 'the token is invalid')
+
+        const user = await this.userService.findByEmail(email)
+        if (!user || !user.actionTokens.resetPassword) {
+            throw tokenIsInvalidError
+        }
+        const actionToken = user.actionTokens.resetPassword
+        if (actionToken.token !== token) {
+            throw tokenIsInvalidError
+        }
+
+        if (actionToken.validUntil < new Date()) {
+            throw tokenIsInvalidError
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12)
+        user.password = hashedPassword
+        user.actionTokens.resetPassword = undefined
+
+        await this.userService.save(user)
+
+        return new MutationStatus(true, 'the new password has been set successfully.')
     }
 }

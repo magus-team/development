@@ -24,6 +24,7 @@ export * from './inputs/loginInput'
 export * from './inputs/refreshTokenInput'
 export * from './inputs/registerInput'
 export * from './inputs/verifyEmailAddressInput'
+export * from './inputs/resetPasswordInput'
 
 /**
  * Utils
