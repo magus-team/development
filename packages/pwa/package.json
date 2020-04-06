@@ -1,26 +1,57 @@
 {
   "name": "pwa",
-  "version": "0.0.0",
-  "description": "PWA",
-  "author": "Magus Team <developers@magus.ir>",
-  "homepage": "https://gitlab.com/magus_team/development#readme",
-  "license": "UNLICENSED",
-  "main": "lib/pwa.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://gitlab.com/magus_team/development.git"
+  "version": "0.1.0",
+  "private": true,
+  "eslintConfig": {
+    "extends": "react-app"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint --fix --ext .ts,.tsx,.js,.jsx ."
   },
-  "bugs": {
-    "url": "https://gitlab.com/magus_team/development/issues"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.3.4",
+    "@testing-library/react": "^10.0.2",
+    "@testing-library/user-event": "^10.0.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.4.1",
+    "jest": "25.2.7",
+    "styled-components": "^5.0.1",
+    "swr": "^0.2.0",
+    "typescript": "~3.8.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.3.0",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.11.0",
+    "@types/react": "^16.9.32",
+    "@types/react-dom": "^16.9.6",
+    "@types/react-router-dom": "^5.1.3",
+    "@types/styled-components": "^5.0.1",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-clean-styled-components": "^0.0.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.19.0",
+    "prettier": "^2.0.3"
   }
 }
