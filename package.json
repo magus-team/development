@@ -7,12 +7,31 @@
   "author": "Magus Team <developers@magus.ir>",
   "license": "UNLICENSED",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/babel-eslint",
+      "**/babel-jest",
+      "**/babel-loader",
+      "**/eslint",
+      "**/jest",
+      "**/webpack",
+      "**/webpack-dev-server",
+      "**/babel-eslint/**",
+      "**/babel-jest/**",
+      "**/babel-loader/**",
+      "**/eslint/**",
+      "**/jest/**",
+      "**/webpack/**",
+      "**/webpack-dev-server/**"
+    ]
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap --use-workspaces",
-    "postinstall": "yarn run bootstrap",
+    "build:types": "lerna run --scope @magus/types build",
+    "postinstall": "yarn run bootstrap && yarn run build:types",
     "build": "lerna run build",
     "clean": "lerna clean"
   },
