@@ -1,16 +1,15 @@
-
 type SizeType = {
-  mobile: number,
-  tablet: number,
-  laptop: number,
-  gaient: number,
+  mobile: number
+  tablet: number
+  laptop: number
+  gaient: number
 }
 
 type MediaQueryType = {
   [screen in keyof SizeType]: string
 }
 
-const size: SizeType = {
+export const size: SizeType = {
   mobile: 450,
   tablet: 800,
   laptop: 1024,
