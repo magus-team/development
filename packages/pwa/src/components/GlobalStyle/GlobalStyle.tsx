@@ -120,6 +120,11 @@ const GlobalStyle = createGlobalStyle`
   table tr td {
     padding: 0.5625rem 0.625rem;
   }
+
+  #root {
+    height: 100%;
+  }
+  
   @font-face {
     font-family: Vazir;
     src: url('assets/fonts/vazir/Vazir.eot');

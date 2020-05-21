@@ -8,7 +8,8 @@ type FocusProps = {
   hasError: boolean
 }
 export const Wrapper = styled('div')`
-  margin: 1rem;
+  margin: 2rem 0;
+  position: relative;
 `
 
 export const Label = styled('label')`
@@ -55,4 +56,6 @@ export const ShowPwd = styled('span')`
 export const ErrorMessage = styled('span')`
   color: ${colors.red};
   font-size: 0.7rem;
+  position: absolute;
+  right: 0;
 `

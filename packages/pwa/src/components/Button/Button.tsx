@@ -11,7 +11,6 @@ const Container = styled('button')`
   background-color: ${colors.secondery};
   color: ${colors.black};
   padding: 0.7rem 1rem;
-  margin: 0.5rem;
   border-radius: 1.7rem;
   cursor: pointer;
   min-width: 8rem;
