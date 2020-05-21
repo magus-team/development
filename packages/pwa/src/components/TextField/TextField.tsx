@@ -1,59 +1,71 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Eye, EyeOff } from 'react-feather'
+import { FieldError } from 'react-hook-form'
 
-import { Input, Label, ShowPwd, Wrapper } from './styles'
+
+import { ErrorMessage, Input, InputWrapper, Label, ShowPwd, Wrapper } from './styles'
 
 type Props = {
-  disabled?: string
-  error?: string
+  error?: FieldError['message']
   id: string
   label: string
+  name: string
   placeholder: string
-  required?: boolean
+  ref: any
   type: 'text' | 'number' | 'email' | 'password' | 'url'
 }
 
-const TextField: React.FC<Props> = ({
-  disabled,
-  error,
-  id,
-  label,
-  placeholder,
-  required,
-  type,
-}) => {
-  const [showPassword, setShowPassword] = React.useState<boolean>(false)
-  const [isFocused, setIsFocused] = React.useState<boolean>(false)
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword)
-  }
-  const onFocusChange = () => {
-    setIsFocused(!isFocused)
-  }
-  return (
-    <Wrapper aria-labelledby={`${id}-label`} isFocused={isFocused}>
-      <Label htmlFor={id} id={`${id}-label`} isFocused={isFocused}>
-        {label}
-      </Label>
-      <Input
-        type={showPassword ? 'text' : type}
-        id={id}
-        aria-invalid={!!error}
-        placeholder={placeholder}
-        required={required}
-        onFocus={onFocusChange}
-        onBlur={onFocusChange}
-      />
-      {type === 'password' && (
-        <ShowPwd
-          aria-label="toggle password visibility"
-          onClick={handleClickShowPassword}
+const TextField: React.FC<Props> = React.forwardRef<HTMLInputElement, Props>(
+  ({ error, id, label, name, placeholder, type }, ref) => {
+    const [showPassword, setShowPassword] = React.useState<boolean>(false)
+    const [isFocused, setIsFocused] = React.useState<boolean>(false)
+    const handleClickShowPassword = () => {
+      setShowPassword(!showPassword)
+    }
+    const onFocusChange = () => {
+      setIsFocused(!isFocused)
+    }
+    return (
+      <Wrapper>
+        <InputWrapper
+          aria-labelledby={`${id}-label`}
+          isFocused={isFocused}
+          hasError={!!error}
         >
-          {showPassword ? <EyeOff /> : <Eye />}
-        </ShowPwd>
-      )}
-    </Wrapper>
-  )
-}
+          <Label
+            htmlFor={id}
+            id={`${id}-label`}
+          >
+            {label}
+          </Label>
+          <Input
+            id={id}
+            aria-invalid={!!error}
+            aria-describedby={`error-${id}`}
+            name={name}
+            onFocus={onFocusChange}
+            onBlur={onFocusChange}
+            placeholder={placeholder}
+            ref={ref}
+            type={showPassword ? 'text' : type}
+          />
+          {type === 'password' && (
+            <ShowPwd
+              aria-label="toggle password visibility"
+              onClick={handleClickShowPassword}
+            >
+              {showPassword ? <EyeOff /> : <Eye />}
+            </ShowPwd>
+          )}
+        </InputWrapper>
+        {error && (
+          <ErrorMessage role="alert" id={`error-${id}`}>
+            {error}
+          </ErrorMessage>
+        )}
+      </Wrapper>
+    )
+  },
+)
 
 export default TextField
