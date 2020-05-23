@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Repository, UpdateResult } from 'typeorm'
 
-import { User } from '@magus/types'
+import { User, ActionToken } from '@magus/types'
 
 @Injectable()
 export class UserService {
@@ -25,5 +25,9 @@ export class UserService {
 
     async save(user: User) {
         await this.userRepository.save(user)
+    }
+
+    async updateVerifyEmail(email: string, verifyEmail: ActionToken): Promise<UpdateResult> {
+        return await this.userRepository.update({ email, isVerified: false }, { actionTokens: { verifyEmail } })
     }
 }

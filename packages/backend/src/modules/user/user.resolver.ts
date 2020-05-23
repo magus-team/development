@@ -1,6 +1,6 @@
 import { Configurable, ConfigParam } from 'nestjs-config'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
-import { UseGuards, BadRequestException } from '@nestjs/common'
+import { UseGuards, BadRequestException, NotFoundException } from '@nestjs/common'
 import { v4 } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
@@ -121,5 +121,20 @@ export class UserResolver {
         await this.userService.save(user)
 
         return new MutationStatus(true, 'the new password has been set successfully.')
+    }
+
+    @UseGuards(ClientGuard)
+    @Mutation((returns) => MutationStatus)
+    async resendVerifyEmail(@Args('email') email: string): Promise<MutationStatus> {
+        const token = v4()
+        const validUntil = new Date(new Date().getTime() + 1000 * 60 * 60 * 24)
+        const result = await this.userService.updateVerifyEmail(email, { token, validUntil })
+        if (result.affected === 0) {
+            throw new NotFoundException('There is no account with this email that is not verified yet!')
+        }
+
+        this.emailUtils.sendVerifyAccountEmail(email, token)
+
+        return new MutationStatus(true, 'The verification email has been send, Please check your email.')
     }
 }
