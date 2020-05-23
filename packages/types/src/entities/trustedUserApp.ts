@@ -15,10 +15,10 @@ export class TrustedUserApp extends BaseEntity {
     refreshToken: string
 
     @Field({ name: 'lastTimeAccess' })
-    @Column({ type: 'timestamp', name: 'token_refreshed_at' })
+    @Column({ type: 'timestamptz', name: 'token_refreshed_at' })
     tokenRefreshedAt: Date
 
-    @Column({ type: 'timestamp', name: 'refresh_token_expire_at' })
+    @Column({ type: 'timestamptz', name: 'refresh_token_expire_at' })
     refreshTokenExpireAt: Date
 
     @Field(() => Client)
@@ -32,6 +32,9 @@ export class TrustedUserApp extends BaseEntity {
     @ManyToOne(
         () => User,
         (user) => user.trustedUserApps,
+        {
+            onDelete: 'CASCADE',
+        },
     )
     @JoinColumn({ name: 'user_id' })
     user: User

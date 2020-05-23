@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql'
-import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm'
+import { Entity, PrimaryColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 
 import { TrustedUserApp } from './trustedUserApp'
 import { UserRole } from './userRole'
@@ -24,15 +24,15 @@ export class User {
     displayName?: string
 
     @Field()
-    @Column({ type: 'timestamp', name: 'joined_at', default: new Date() })
+    @CreateDateColumn({ type: 'timestamptz', name: 'joined_at' })
     joinedAt?: Date
 
     @Field()
-    @Column({ type: 'timestamp', name: 'updated_at', default: new Date() })
+    @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
     updatedAt?: Date
 
     @Field({ nullable: true })
-    @Column({ type: 'timestamp', name: 'suspended_at', nullable: true })
+    @Column({ type: 'timestamptz', name: 'suspended_at', nullable: true })
     suspendedAt?: Date
 
     @Field()
@@ -52,12 +52,18 @@ export class User {
     @OneToMany(
         () => UserRole,
         (userRole) => userRole.user,
+        {
+            onDelete: 'CASCADE',
+        },
     )
     roles: UserRole[]
 
     @OneToMany(
         () => TrustedUserApp,
         (trustedUserApp) => trustedUserApp.user,
+        {
+            onDelete: 'CASCADE',
+        },
     )
     trustedUserApps: TrustedUserApp[]
 }

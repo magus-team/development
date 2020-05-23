@@ -1,4 +1,4 @@
-import { BaseEntity, Entity, PrimaryColumn, Column, OneToMany } from 'typeorm'
+import { BaseEntity, Entity, PrimaryColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { ObjectType, Field, ID } from '@nestjs/graphql'
 
 import { TrustedUserApp } from './trustedUserApp'
@@ -23,16 +23,19 @@ export class Client extends BaseEntity {
     deviceType: string
 
     @Field()
-    @Column({ type: 'timestamp', name: 'created_at', default: new Date() })
+    @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
     createdAt: Date
 
     @Field()
-    @Column({ type: 'timestamp', name: 'updated_at', default: new Date() })
+    @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
     updatedAt: Date
 
     @OneToMany(
         () => TrustedUserApp,
         (trustedUserApp) => trustedUserApp.client,
+        {
+            onDelete: 'CASCADE',
+        },
     )
     trustedUserApps: TrustedUserApp[]
 }

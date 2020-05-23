@@ -1,4 +1,4 @@
-import { BaseEntity, Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm'
+import { BaseEntity, Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm'
 import { ObjectType, Field, registerEnumType } from '@nestjs/graphql'
 
 import { User } from './user'
@@ -28,12 +28,15 @@ export class UserRole extends BaseEntity {
     @PrimaryColumn({ type: 'text', default: RoleType.USER })
     role: RoleType
 
-    @Column('timestamp', { name: 'granted_at', default: new Date() })
+    @CreateDateColumn({ name: 'granted_at', type: 'timestamptz' })
     grantedAt: Date
 
     @ManyToOne(
         () => User,
         (user) => user.roles,
+        {
+            onDelete: 'CASCADE',
+        },
     )
     @JoinColumn({ name: 'user_id' })
     user: User
