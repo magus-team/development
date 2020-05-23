@@ -4,6 +4,8 @@ import { Repository, UpdateResult } from 'typeorm'
 
 import { User, ActionToken } from '@magus/types'
 
+import { usernameBlacklist } from 'common/utils/username.utils'
+
 @Injectable()
 export class UserService {
     constructor(
@@ -29,5 +31,18 @@ export class UserService {
 
     async updateVerifyEmail(email: string, verifyEmail: ActionToken): Promise<UpdateResult> {
         return await this.userRepository.update({ email, isVerified: false }, { actionTokens: { verifyEmail } })
+    }
+
+    async isUsernameUnique(username: string, userId?: string): Promise<boolean> {
+        if (usernameBlacklist.indexOf(username) !== -1) return false
+        const query = await this.userRepository
+            .createQueryBuilder('user')
+            .where('LOWER(user.username) = LOWER(:username)', { username })
+        if (userId) {
+            query.andWhere('user.id !=:userId', { userId })
+        }
+        const user = await query.getOne()
+        if (user) return false
+        return true
     }
 }

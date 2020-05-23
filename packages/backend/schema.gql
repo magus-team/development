@@ -18,6 +18,11 @@ scalar DateTime
 
 union InitialClientResult = MutationStatus | Client
 
+type IsAvailable {
+  available: Boolean!
+  message: String!
+}
+
 type IsSuspended {
   message: String!
   reason: String!
@@ -54,7 +59,7 @@ type MutationStatus {
 
 type Query {
   apps: [TrustedUserApp!]!
-  hello: String!
+  availableUsername(data: UsernameInput!): IsAvailable!
 }
 
 input RefreshTokenInput {
@@ -77,6 +82,10 @@ type TrustedUserApp {
   id: ID!
   lastTimeAccess: DateTime!
   client: Client!
+}
+
+input UsernameInput {
+  username: String!
 }
 
 type UserRole {

@@ -16,6 +16,7 @@ export * from './responses/isSuspended'
 export * from './responses/isUnverified'
 export * from './responses/userToken'
 export * from './responses/loginResult'
+export * from './responses/isAvailable'
 
 /**
  * Inputs
@@ -25,6 +26,7 @@ export * from './inputs/refreshTokenInput'
 export * from './inputs/registerInput'
 export * from './inputs/verifyEmailAddressInput'
 export * from './inputs/resetPasswordInput'
+export * from './inputs/usernameInput'
 
 /**
  * Utils

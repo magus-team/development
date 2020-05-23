@@ -4,10 +4,23 @@ import { UseGuards, BadRequestException, NotFoundException } from '@nestjs/commo
 import { v4 } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
-import { MutationStatus, User, UserRole, RoleType, RegisterInput, ResetPasswordInput } from '@magus/types'
+import {
+    MutationStatus,
+    User,
+    UserRole,
+    RoleType,
+    RegisterInput,
+    ResetPasswordInput,
+    UsernameInput,
+    IsAvailable,
+} from '@magus/types'
+import { UserInfo } from 'types/userInfo'
 
+import { AuthGuard } from 'common/guard/auth.guard'
 import { ClientGuard } from 'common/guard/client.guard'
+import { CurrentUser } from 'common/decorator/currentUser.decorator'
 import { EmailUtils } from 'common/utils/email.utils'
+import { getSuggestedUsername, getRandomUsername } from 'common/utils/username.utils'
 import { SystemGuard } from 'common/guard/system.guard'
 import { UserRoleService } from './userRole.service'
 import { UserService } from './user.service'
@@ -20,10 +33,17 @@ export class UserResolver {
         private readonly emailUtils: EmailUtils,
     ) {}
 
-    @Query((returns) => String)
-    async hello(): Promise<string> {
-        // this is just for testing
-        return 'hello world'
+    @UseGuards(AuthGuard)
+    @Query((returns) => IsAvailable)
+    async availableUsername(
+        @Args('data') { username }: UsernameInput,
+        @CurrentUser() { userId }: UserInfo,
+    ): Promise<IsAvailable> {
+        const isUnique = await this.userService.isUsernameUnique(username, userId)
+        if (isUnique) {
+            return new IsAvailable(true, 'The username is available.')
+        }
+        return new IsAvailable(false, 'This username is not available, please choose another one.')
     }
 
     @UseGuards(SystemGuard)
@@ -37,6 +57,7 @@ export class UserResolver {
             let user = new User()
             user.email = adminEmailAddress
             user.displayName = 'root'
+            user.username = 'root'
             user.password = hashedPassword
             user.isVerified = true
             user = await this.userService.create(user)
@@ -64,6 +85,13 @@ export class UserResolver {
         let user = new User()
         user.email = email
         user.password = hashedPassword
+
+        const suggestedUsername = getSuggestedUsername(email.split('@')[0])
+        if (await this.userService.isUsernameUnique(suggestedUsername)) {
+            user.username = suggestedUsername
+        } else {
+            user.username = getRandomUsername()
+        }
 
         const token = v4()
         const validUntil = new Date(new Date().getTime() + 1000 * 60 * 60 * 24)
