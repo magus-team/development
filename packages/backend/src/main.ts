@@ -4,14 +4,15 @@ import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 
 import { AppModule } from 'modules/app.module'
+import { createDBIfNotExist } from 'common/utils/pg.utils'
 
 async function bootstrap() {
-    const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
+    await createDBIfNotExist()
+    const app = await NestFactory.create<NestFastifyApplication>(AppModule.register(), new FastifyAdapter())
+    const config = app.get(ConfigService)
 
     app.useGlobalPipes(new ValidationPipe())
     await app.init()
-
-    const config = app.get(ConfigService)
 
     await app.listen(config.get('server.port'), () => {
         console.warn(`The Graphql is available on ${config.get('server.graphqlEndpoint')}`)

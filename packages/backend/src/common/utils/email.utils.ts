@@ -13,7 +13,7 @@ export class EmailUtils {
         this.resetPasswordLink = config.get('email.resetPasswordLink')
         this.noReplySender = config.get('email.noReplySender')
 
-        if (this.inTestingMode) {
+        if (this.inTestingMode || process.env.NODE_ENV === 'test') {
             this.mailTransporter = nodemailer.createTransport({
                 host: 'smtp.ethereal.email',
                 port: 587,

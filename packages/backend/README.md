@@ -21,44 +21,6 @@ openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
 awk -v ORS='\\n' '1' jwtRS256.key | pbcopy
 ```
 
-### Create the Magus Database on the First Time
-
-#### Postgres on Local Machine
-
-If you're using Postgres on your local machine, you just need to run this command by any Postgres client like `psql`.
-
-```sql
-CREATE DATABASE magus;
-```
-
-#### Postgres on Docker
-
-1. Go inside the running container to execute `psql` command, maybe the name of container (`dev_postgres_1`) is different, you can check by running `docker ps -aq` command.
-
-```
-docker exec -it dev_postgres_1 bin/bash
-```
-
-2. Run `psql` command with `-U postgres` option as the default user.
-
-```
-psql -U postgres
-```
-
-3. Run this command to create `magus` database.
-
-```
-CREATE DATABASE magus;
-```
-
-4. On the production, you should also set a secure password for the `postgres` user by running this command.
-
-```
-ALTER USER postgres WITH PASSWORD 'new_secure_password';
-```
-
-NOTE: You should set `POSTGRES_PASSWORD` environment variable as well, this `env` will be used in `postgres` and `backend` services.
-
 ### Setting Environment Variables
 
 We're using [nestjs-config](https://github.com/nestjsx/nestjs-config) to configure our modules based on different environment, it's based on the `.env` file in a fancy way. All of the configurations have been categorized on the `config` path. you could see the defaults values as well.
