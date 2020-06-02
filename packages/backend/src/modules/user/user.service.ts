@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, UpdateResult } from 'typeorm'
+import { Repository, UpdateResult, DeleteResult } from 'typeorm'
 
 import { User, ActionToken } from '@magus/types'
 
@@ -44,5 +44,9 @@ export class UserService {
         const user = await query.getOne()
         if (user) return false
         return true
+    }
+
+    async delete(id: string): Promise<DeleteResult> {
+        return await this.userRepository.delete(id)
     }
 }
