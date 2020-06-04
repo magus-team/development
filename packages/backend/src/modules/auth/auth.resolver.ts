@@ -169,7 +169,7 @@ export class AuthResolver {
 
         const user = await this.userService.findByEmail(email, ['roles'])
         if (user && user.isVerified) {
-            return await this.getNewUserToken(user, client)
+            throw new BadRequestException('This email has already been verified')
         }
         if (!user || !user.actionTokens.verifyEmail) {
             throw tokenIsInvalidError
